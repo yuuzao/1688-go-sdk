@@ -2,28 +2,36 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [ main ]
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.25.x'
       - name: Run tests
         run: go test ./...
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  semantic-release:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # required for semantic diff across tags
+      - name: Semantic Release (Conventional Commits)
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # tag-prefix: v        # 默认 v，可按需调整
+          # changelog-file: ''   # 只在 GitHub Release 页面生成说明
