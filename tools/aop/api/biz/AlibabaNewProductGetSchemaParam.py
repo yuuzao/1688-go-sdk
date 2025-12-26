@@ -22,7 +22,7 @@ class AlibabaNewProductGetSchemaParam(BaseApi):
         return '1/com.alibaba.product/alibaba.new.product.getSchema'
 
     def get_required_params(self):
-        return ['catId', 'scene', 'offerId', 'bizParam']
+        return ['scene']
 
     def get_multipart_params(self):
         return []
